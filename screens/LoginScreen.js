@@ -1,33 +1,58 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebaseConfig';
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Erro", "Preencha todos os campos.");
+      return;
+    }
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      Alert.alert("Sucesso", "Login realizado com sucesso!");
+      // aqui você pode redirecionar para a dashboard ou tela principal
+      // navigation.replace("Dashboard");  // exemplo
+      console.log("foi");
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Erro", "Email ou senha inválidos.");
+    }
+  };
+
   return (
     <View style={styles.container}>
-
       <Text style={styles.title}>Radar Cidadão</Text>
 
-      {/* Inputs */}
       <TextInput
         style={styles.input}
         placeholder="Email"
         placeholderTextColor="#bbb"
         keyboardType="email-address"
+        autoCapitalize="none"
+        value={email}
+        onChangeText={setEmail}
       />
+
       <TextInput
         style={styles.input}
         placeholder="Senha"
         placeholderTextColor="#bbb"
-        secureTextEntry={true}
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
       />
 
-      {/* Botão de login */}
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
 
-      {/* Link para cadastro */}
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate("Register")}>
         <Text style={styles.registerText}>Não possui conta? Cadastre-se</Text>
       </TouchableOpacity>
     </View>
